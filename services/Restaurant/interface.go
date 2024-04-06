@@ -1,14 +1,19 @@
 package restaurantService
 
+import "gorm.io/gorm"
+
 type Service interface {
 	CreateRestaurant(CreateRestaurantParams) Restaurant
 	GetRestaurant(int64) Restaurant
+	CreateBranch()
+	GetBranches()
 }
 
 type Restaurant struct {
-	AddedID  int64  `db:"added_id"`
-	Name     string `db:"name"`
-	LogoPath string `db:"logo_path"`
+	gorm.Model
+	id       uint `gorm:"primaryKey;autoIncrement"`
+	Name     string
+	LogoPath string
 }
 
 type CreateRestaurantParams struct {

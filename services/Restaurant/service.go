@@ -3,10 +3,11 @@ package restaurantService
 import (
 	"Bete/services/database"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type restaurantService struct {
-	dbService database.Service
+	db *gorm.DB
 }
 
 type params struct {
@@ -17,7 +18,7 @@ type params struct {
 
 func New(p params) Service {
 	return &restaurantService{
-		dbService: p.DbService,
+		db: p.DbService.GetDBInstance(),
 	}
 }
 
@@ -26,7 +27,11 @@ func (s restaurantService) CreateRestaurant(CreateRestaurantParams) Restaurant {
 }
 
 func (s restaurantService) GetRestaurant(int64) Restaurant {
-	return Restaurant{
-		Name: "Flafel Philo",
-	}
+	var res Restaurant
+	s.db.First(&res, 1)
+
+	return res
 }
+
+func (s restaurantService) CreateBranch() {}
+func (s restaurantService) GetBranches()  {}

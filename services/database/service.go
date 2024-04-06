@@ -1,7 +1,8 @@
 package database
 
 import (
-	"gorm.io/driver/sqlite"
+	"fmt"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -10,8 +11,9 @@ type databaseService struct {
 }
 
 func New() Service {
-	db, err := gorm.Open(sqlite.Open("foo.db"), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open("root@tcp(localhost:3306)/meal_hub"), &gorm.Config{})
 	if err != nil {
+		fmt.Println(err)
 		panic("failed to connect database")
 	}
 

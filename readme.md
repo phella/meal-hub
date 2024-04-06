@@ -2,6 +2,7 @@
 
 ### Install Dependencies:
   - Install mysql
+  - Create meal_hub database
   - Install golang v1.19
   - Navigate to main directory and run `go install`
 ### Start the Server:
