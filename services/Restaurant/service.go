@@ -4,6 +4,7 @@ import (
 	"Bete/services/database"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"mime/multipart"
 )
 
 type restaurantService struct {
@@ -22,8 +23,13 @@ func New(p params) Service {
 	}
 }
 
-func (s restaurantService) CreateRestaurant(CreateRestaurantParams) Restaurant {
-	return Restaurant{}
+func (s restaurantService) CreateRestaurant(p CreateRestaurantParams) Restaurant {
+	restaurant := Restaurant{
+		Name:     p.Name,
+		LogoPath: SaveImage(p.Logo),
+	}
+	s.db.Create(restaurant)
+	return restaurant
 }
 
 func (s restaurantService) GetRestaurant(int64) Restaurant {
@@ -35,3 +41,8 @@ func (s restaurantService) GetRestaurant(int64) Restaurant {
 
 func (s restaurantService) CreateBranch() {}
 func (s restaurantService) GetBranches()  {}
+
+// TODO(mazen): Add any saving image algorithm
+func SaveImage(image *multipart.File) string {
+	return "img"
+}

@@ -1,8 +1,8 @@
 package restaurantRouter
 
 import (
+	"Bete/pkg/httputils"
 	"Bete/services/Restaurant"
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/fx"
 	"net/http"
@@ -32,6 +32,7 @@ func New(p params) Router {
 func (r restaurantRouter) RegisterRoutes() chi.Router {
 	router := chi.NewRouter()
 	router.Get("/{id}", r.getRestaurant)
+	router.Post("/", r.createRestaurant)
 	return router
 }
 
@@ -43,11 +44,32 @@ func (r restaurantRouter) getRestaurant(w http.ResponseWriter, req *http.Request
 		return
 	}
 	res := r.restaurantService.GetRestaurant(id)
-	jsonData, err := json.Marshal(res)
+
+	_ = httputils.JSON(w, res)
+}
+
+func (r restaurantRouter) createRestaurant(w http.ResponseWriter, req *http.Request) {
+	err := req.ParseMultipartForm(30 << 20) // 30 MB max file size
 	if err != nil {
-		http.Error(w, "error marshaling json", http.StatusInternalServerError)
+		http.Error(w, "Unable to parse form data", http.StatusBadRequest)
 		return
 	}
 
-	w.Write(jsonData)
+	file, _, err := req.FormFile("logo")
+	if err != nil {
+		http.Error(w, "Unable to get logo from data", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	name := req.FormValue("name")
+	slogan := req.FormValue("slogan")
+
+	id := r.restaurantService.CreateRestaurant(restaurantService.CreateRestaurantParams{
+		Name:   name,
+		Slogan: slogan,
+		Logo:   &file,
+	})
+
+	httputils.JSON(w, id)
 }
