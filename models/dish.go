@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Dish struct {
 	gorm.Model
-	Id        uint `gorm:"primaryKey;autoIncrement"`
+	ID        uint `gorm:"primaryKey;autoIncrement"`
 	Name      string
 	ImagePath *string
 }
