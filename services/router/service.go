@@ -1,6 +1,7 @@
 package router
 
 import (
+	orderRouter "Bete/routes/order"
 	"Bete/routes/restaurant"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -11,17 +12,20 @@ import (
 
 type routerService struct {
 	restaurantRouter restaurantRouter.Router
+	orderRouter      orderRouter.Router
 }
 
 type params struct {
 	fx.In
 
 	RestaurantRouter restaurantRouter.Router
+	OrderRouter      orderRouter.Router
 }
 
 func New(p params) Service {
 	return &routerService{
 		restaurantRouter: p.RestaurantRouter,
+		orderRouter:      p.OrderRouter,
 	}
 }
 
@@ -29,6 +33,9 @@ func (s routerService) registerRoutes() chi.Router {
 	mainRouter := chi.NewRouter()
 	restaurantRoutes := s.restaurantRouter.RegisterRoutes()
 	mainRouter.Mount("/api/v1/restaurant", restaurantRoutes)
+
+	orderRoutes := s.orderRouter.RegisterRoutes()
+	mainRouter.Mount("/api/v1/order", orderRoutes)
 
 	return mainRouter
 }

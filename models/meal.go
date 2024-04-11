@@ -10,5 +10,4 @@ type Meal struct {
 	ImagePath      string
 	PriceE5        int64
 	IsCustomizable bool
-	Order          []Order
 }

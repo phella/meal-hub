@@ -11,7 +11,7 @@ type databaseService struct {
 }
 
 func New() Service {
-	db, err := gorm.Open(mysql.Open("root@tcp(localhost:3306)/meal_hub"), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open("root@tcp(localhost:3306)/meal_hub?parseTime=true"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")

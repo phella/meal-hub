@@ -53,13 +53,13 @@ func (s orderService) CalculateFullCheck(context.Context) (int64, error) {
 
 func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
 	var order models.Order
-	result := s.db.Where("is_active = ? AND table_id = ?", true, tableId).First(&order)
-	if result.Error != nil {
+	result := s.db.Where("is_active = ? AND table_id = ?", true, tableId).Preload("OrderItems").First(&order)
+	if result.Error != nil { // check error is not found
 		newOrder := models.Order{
 			IsActive: pointers.Ptr(true),
 			TableId:  tableId,
 		}
-		res := s.db.Create(newOrder)
+		res := s.db.Create(&newOrder)
 		if res.Error != nil {
 			return models.Order{}, res.Error
 		}
@@ -70,7 +70,7 @@ func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
 }
 
 func (s orderService) insertOrderItem(item models.OrderItem) error {
-	res := s.db.Create(item)
+	res := s.db.Create(&item)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -131,7 +131,7 @@ func toOrderItems(orderItems []models.OrderItem) []OrderItem {
 
 func (s orderService) getHydratedOrder(orderID uint) (Order, error) {
 	var order models.Order
-	res := s.db.First(&order, orderID)
+	res := s.db.Preload("OrderItems").First(&order, orderID)
 	if res.Error != nil {
 		return Order{}, res.Error
 	}
