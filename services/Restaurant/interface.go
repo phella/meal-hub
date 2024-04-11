@@ -1,7 +1,6 @@
 package restaurantService
 
 import (
-	"gorm.io/gorm"
 	"mime/multipart"
 )
 
@@ -13,8 +12,7 @@ type Service interface {
 }
 
 type Restaurant struct {
-	gorm.Model
-	id       uint `gorm:"primaryKey;autoIncrement"`
+	id       uint
 	Name     string
 	LogoPath string
 	slogan   string

@@ -1,7 +1,6 @@
-package main
+package models
 
 import (
-	restaurant "Bete/services/Restaurant"
 	"Bete/services/database"
 	"go.uber.org/fx"
 )
@@ -14,7 +13,7 @@ type migrateSchemaParams struct {
 
 func migrateSchema(params migrateSchemaParams) error {
 	db := params.DbService.GetDBInstance()
-	if err := db.AutoMigrate(&restaurant.Restaurant{}); err != nil {
+	if err := db.AutoMigrate(&Restaurant{}); err != nil {
 		return err
 	}
 
