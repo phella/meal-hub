@@ -11,7 +11,8 @@ type Service interface {
 type Order struct {
 	Id       int64
 	PriceE5  int64
-	quantity int64
+	// TO ADD
+	// quantity int64
 }
 
 type OrderItem struct {

@@ -9,6 +9,7 @@ type OrderItem struct {
 	Order    Order
 	Meal     Meal
 	PriceE5  int64
-	quantity int64
+	// TO ADD:
+	//quantity int64
 	Dish     Dish `gorm:"many2many:item_dishes;"`
 }
