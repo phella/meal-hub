@@ -2,7 +2,7 @@ package restaurantRouter
 
 import (
 	"Bete/pkg/httputils"
-	"Bete/services/Restaurant"
+	"Bete/services/restaurant"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/fx"
 	"net/http"
