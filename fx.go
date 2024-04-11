@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Bete/models"
 	"Bete/routes/restaurant"
 	"Bete/services/Restaurant"
 	"Bete/services/database"
@@ -17,7 +18,7 @@ func InitializeApp() *fx.App {
 		fx.Provide(restaurantRouter.New),
 
 		// Invoke initialization methods
-		fx.Invoke(migrateSchema),
+		fx.Invoke(models.MigrateSchema),
 		fx.Invoke(router.Service.ListenAndServe),
 	)
 }

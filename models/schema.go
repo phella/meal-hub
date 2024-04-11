@@ -11,7 +11,7 @@ type migrateSchemaParams struct {
 	DbService database.Service
 }
 
-func migrateSchema(params migrateSchemaParams) error {
+func MigrateSchema(params migrateSchemaParams) error {
 	db := params.DbService.GetDBInstance()
 	if err := db.AutoMigrate(&Restaurant{}); err != nil {
 		return err

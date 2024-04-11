@@ -4,8 +4,7 @@ import "gorm.io/gorm"
 
 type Order struct {
 	gorm.Model
-	Id      uint    `gorm:"primaryKey;autoIncrement"`
-	Session Session `gorm:"index:order__session_id__user_id"`
-	User    User    `gorm:"index:order__session_id__user_id"`
-	Meal    []Meal
+	Id       uint  `gorm:"primaryKey;autoIncrement"`
+	IsActive *bool `gorm:"index:session__is_active"`
+	Table    Table
 }
