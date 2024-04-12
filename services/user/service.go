@@ -1,7 +1,9 @@
 package userService
 
 import (
+	"Bete/models"
 	"Bete/services/database"
+
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -22,9 +24,11 @@ func New(p params) Service {
 	}
 }
 
-func (s userService) CreateUser(p CreateUserParams) User {
-	token := p.Token
-	var user User 
-	s.db.Where(User{Token: token}).FirstOrCreate(&user)
+func (s userService) EnsureUser(p EnsureUserParams) models.User {
+	user := models.User{
+		Token: p.Token,
+		Name:  p.Name,
+	}
+	s.db.Where(user).FirstOrCreate(&user)
 	return user
 }

@@ -15,7 +15,7 @@ func toModelSelections(selections []Selection) []models.Selection {
 
 func toOrderItems(orderItems []models.OrderItem) []OrderItem {
 	res := make([]OrderItem, len(orderItems))
-	for i, _ := range orderItems {
+	for i := range orderItems {
 		res[i] = OrderItem{
 			Meal:     orderItems[i].Meal,
 			User:     orderItems[i].User,

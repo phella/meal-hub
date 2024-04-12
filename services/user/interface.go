@@ -1,13 +1,19 @@
 package userService
 
+import (
+	"Bete/models"
+)
+
 type Service interface {
-	CreateUser(CreateUserParams) User
+	EnsureUser(EnsureUserParams) models.User
 }
 
 type User struct {
 	Token string
+	Name  string
 }
 
-type CreateUserParams struct {
+type EnsureUserParams struct {
 	Token string
+	Name  string
 }

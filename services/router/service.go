@@ -4,6 +4,8 @@ import (
 	orderRouter "Bete/routes/order"
 	restaurantRouter "Bete/routes/restaurant"
 	userRouter "Bete/routes/user"
+	userService "Bete/services/user"
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,6 +18,7 @@ type routerService struct {
 	restaurantRouter restaurantRouter.Router
 	orderRouter      orderRouter.Router
 	userRouter       userRouter.Router
+	userService      userService.Service
 }
 
 type params struct {
@@ -24,6 +27,7 @@ type params struct {
 	RestaurantRouter restaurantRouter.Router
 	OrderRouter      orderRouter.Router
 	UserRouter       userRouter.Router
+	UserService      userService.Service
 }
 
 func New(p params) Service {
@@ -31,7 +35,20 @@ func New(p params) Service {
 		restaurantRouter: p.RestaurantRouter,
 		orderRouter:      p.OrderRouter,
 		userRouter:       p.UserRouter,
+		userService:      p.UserService,
 	}
+}
+
+func (s routerService) EnsureUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		type ContextKey string
+		const ContextTokenKey ContextKey = "Id"
+		token := r.Header.Get("Token")
+		userParams := userService.EnsureUserParams{Token: token}
+		user := s.userService.EnsureUser(userParams)
+		ctx := context.WithValue(r.Context(), ContextTokenKey, user.ID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (s routerService) registerRoutes() chi.Router {
@@ -40,7 +57,7 @@ func (s routerService) registerRoutes() chi.Router {
 	mainRouter.Mount("/api/v1/restaurant", restaurantRoutes)
 
 	orderRoutes := s.orderRouter.RegisterRoutes()
-	mainRouter.Mount("/api/v1/order", orderRoutes)
+	mainRouter.With(s.EnsureUser).Mount("/api/v1/order", orderRoutes)
 
 	userRoutes := s.userRouter.RegisterRoutes()
 	mainRouter.Mount("/api/v1/user", userRoutes)

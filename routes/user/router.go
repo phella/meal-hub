@@ -2,10 +2,12 @@ package userRouter
 
 import (
 	"Bete/pkg/httputils"
-	"Bete/services/user"
+	userService "Bete/services/user"
 	"encoding/json"
 	"net/http"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -36,18 +38,19 @@ func (r userRouter) RegisterRoutes() chi.Router {
 }
 
 func (r userRouter) createUser(w http.ResponseWriter, req *http.Request) {
-	var createUserParams userService.CreateUserParams
-	err := json.NewDecoder(req.Body).Decode(&createUserParams)
+	var ensureUserParams userService.EnsureUserParams
+	err := json.NewDecoder(req.Body).Decode(&ensureUserParams)
 	if err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
 		return
 	}
-	token := r.userService.CreateUser(createUserParams)
+	ensureUserParams.Token = uuid.New().String()
+	token := r.userService.EnsureUser(ensureUserParams)
 
 	err = httputils.JSON(w, token)
 
 	if err != nil {
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
