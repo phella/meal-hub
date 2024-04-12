@@ -9,7 +9,7 @@ func main() {
 	app := InitializeApp()
 
 	if err := app.Start(context.Background()); err != nil {
-		fmt.Println("Error starting the application:", err)
+		fmt.Println("Error in starting the application:", err)
 	}
 	go func() {
 	}()
