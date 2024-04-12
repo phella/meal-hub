@@ -2,11 +2,12 @@ package restaurantRouter
 
 import (
 	"Bete/pkg/httputils"
-	"Bete/services/Restaurant"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/fx"
+	restaurantService "Bete/services/restaurant"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/fx"
 )
 
 type params struct {

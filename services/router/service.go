@@ -2,17 +2,20 @@ package router
 
 import (
 	orderRouter "Bete/routes/order"
-	"Bete/routes/restaurant"
+	restaurantRouter "Bete/routes/restaurant"
+	userRouter "Bete/routes/user"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/fx"
 	"net/http"
 	"os"
+
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/fx"
 )
 
 type routerService struct {
 	restaurantRouter restaurantRouter.Router
 	orderRouter      orderRouter.Router
+	userRouter       userRouter.Router
 }
 
 type params struct {
@@ -20,12 +23,14 @@ type params struct {
 
 	RestaurantRouter restaurantRouter.Router
 	OrderRouter      orderRouter.Router
+	UserRouter       userRouter.Router
 }
 
 func New(p params) Service {
 	return &routerService{
 		restaurantRouter: p.RestaurantRouter,
 		orderRouter:      p.OrderRouter,
+		userRouter:       p.UserRouter,
 	}
 }
 
@@ -36,6 +41,9 @@ func (s routerService) registerRoutes() chi.Router {
 
 	orderRoutes := s.orderRouter.RegisterRoutes()
 	mainRouter.Mount("/api/v1/order", orderRoutes)
+
+	userRoutes := s.userRouter.RegisterRoutes()
+	mainRouter.Mount("/api/v1/user", userRoutes)
 
 	return mainRouter
 }
