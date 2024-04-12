@@ -57,7 +57,7 @@ func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
 		IsActive: pointers.Ptr(true),
 		TableId:  tableId,
 	}
-	result := s.db.FirstOrCreate(&order)
+	result := s.db.Where(order).FirstOrCreate(&order)
 	if result.Error != nil {
 		return models.Order{}, result.Error
 	}
