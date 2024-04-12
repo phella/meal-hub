@@ -23,7 +23,8 @@ func New(p params) Service {
 }
 
 func (s userService) CreateUser(p CreateUserParams) User {
+	token := p.Token
 	var user User 
-	s.db.Where(User{Token: p.Token}).FirstOrCreate(&user)
+	s.db.Where(User{Token: token}).FirstOrCreate(&user)
 	return user
 }

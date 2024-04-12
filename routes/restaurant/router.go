@@ -72,5 +72,10 @@ func (r restaurantRouter) createRestaurant(w http.ResponseWriter, req *http.Requ
 		Logo:   &file,
 	})
 
-	httputils.JSON(w, id)
+	err = httputils.JSON(w, id)
+	
+	if err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
 }

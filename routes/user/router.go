@@ -44,5 +44,10 @@ func (r userRouter) createUser(w http.ResponseWriter, req *http.Request) {
 	}
 	token := r.userService.CreateUser(createUserParams)
 
-	httputils.JSON(w, token)
+	err = httputils.JSON(w, token)
+
+	if err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
 }

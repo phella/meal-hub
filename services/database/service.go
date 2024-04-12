@@ -13,7 +13,10 @@ type databaseService struct {
 }
 
 func getDBConnectionString() string {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic("failed to load dot env")
+	}
 	db_name := os.Getenv("DB_NAME")
 	db_user := os.Getenv("DB_USER")
 	db_password := os.Getenv("DB_PASSWORD")
