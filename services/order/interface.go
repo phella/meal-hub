@@ -29,12 +29,12 @@ type AddItemParams struct {
 }
 
 type Meal struct {
-	ID       uint   `json:"id"`
-	Dishes   []Dish `json:"dishes"`
-	Quantity int64  `json:"quantity"`
+	ID         uint        `json:"id"`
+	Selections []Selection `json:"selections"`
+	Quantity   int64       `json:"quantity"`
 }
 
-type Dish struct {
+type Selection struct {
 	ID uint `json:"id"`
 }
 

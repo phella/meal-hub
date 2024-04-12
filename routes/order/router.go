@@ -54,7 +54,7 @@ func (r orderRouter) addItems(w http.ResponseWriter, req *http.Request) {
 		Meals:   addItemReq.Meals,
 	})
 	if err != nil {
-		http.Error(w, "order id not found", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

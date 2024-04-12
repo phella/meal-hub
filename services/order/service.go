@@ -73,8 +73,33 @@ func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
 	return order, nil
 }
 
-func (s orderService) insertOrderItem(item models.OrderItem) error {
-	res := s.db.Create(&item)
+func (s orderService) insertOrderItems(params insertOrderItemsParams) error {
+
+	var selectionsInfo []models.Selection
+	s.db.Where("ID IN ?", getSelectionsIDs(params.Meals)).Find(&selectionsInfo)
+
+	var mealsInfo []models.Meal
+	s.db.Where("ID IN ?", getMealsIDs(params.Meals)).Find(&mealsInfo)
+
+	items := make([]models.OrderItem, len(params.Meals))
+	for i, meal := range params.Meals {
+
+		priceE5, err := s.calculateMealPriceE5(meal, mealsInfo, selectionsInfo)
+		if err != nil {
+			return err
+		}
+
+		items[i] = models.OrderItem{
+			OrderID:    params.OrderID,
+			UserID:     params.UserID,
+			MealID:     meal.ID,
+			PriceE5:    priceE5,
+			Quantity:   meal.Quantity,
+			Selections: toModelSelections(meal.Selections),
+		}
+	}
+
+	res := s.db.Create(&items)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -82,38 +107,69 @@ func (s orderService) insertOrderItem(item models.OrderItem) error {
 	return nil
 }
 
-func (s orderService) insertOrderItems(params insertOrderItemsParams) error {
-	for _, meal := range params.Meals {
-		priceE5, err := s.getMealPriceE5(meal)
-		if err != nil {
-			return err
-		}
+func (s orderService) calculateMealPriceE5(meal Meal, mealsInfo []models.Meal, selectionsInfo []models.Selection) (int64, error) {
+	price, err := findMealPriceE5ByID(mealsInfo, meal.ID)
+	if err != nil {
+		return 0, err
+	}
 
-		item := models.OrderItem{
-			OrderID:  params.OrderID,
-			UserID:   params.UserID,
-			MealID:   meal.ID,
-			PriceE5:  priceE5,
-			Quantity: meal.Quantity,
-			Dishes:   toModelDishes(meal.Dishes),
+	for _, selection := range selectionsInfo {
+		extraCharge, err := findSelectionExtraChargeE5ByID(selectionsInfo, selection.ID)
+		if err != nil {
+			return 0, err
 		}
-		if err := s.insertOrderItem(item); err != nil {
-			return err
+		price += extraCharge
+	}
+	return price, nil
+}
+
+func findMealPriceE5ByID(meals []models.Meal, ID uint) (int64, error) {
+	fmt.Println(meals[0].ID)
+	fmt.Println(ID)
+	for _, meal := range meals {
+		if meal.ID == ID {
+			return meal.PriceE5, nil
 		}
 	}
 
-	return nil
+	return 0, errors.New("meal not found")
 }
 
-func (s orderService) getMealPriceE5(meal Meal) (int64, error) {
-	return 33, nil
+func findSelectionExtraChargeE5ByID(selections []models.Selection, ID uint) (int64, error) {
+	for _, selection := range selections {
+		if selection.ID == ID {
+			return selection.ExtraChargesE5, nil
+		}
+	}
+
+	return 0, errors.New("selection not found")
 }
 
-func toModelDishes(dishes []Dish) []models.Dish {
-	res := make([]models.Dish, len(dishes))
-	for i, dish := range dishes {
-		res[i] = models.Dish{
-			ID: dish.ID,
+func getMealsIDs(meals []Meal) []uint {
+	mealIDs := make([]uint, len(meals))
+	for i, meal := range meals {
+		mealIDs[i] = meal.ID
+	}
+
+	return mealIDs
+}
+
+func getSelectionsIDs(meals []Meal) []uint {
+	selectionIDs := []uint{}
+	for _, meal := range meals {
+		for _, selection := range meal.Selections {
+			selectionIDs = append(selectionIDs, selection.ID)
+		}
+	}
+
+	return selectionIDs
+}
+
+func toModelSelections(selections []Selection) []models.Selection {
+	res := make([]models.Selection, len(selections))
+	for i, selection := range selections {
+		res[i] = models.Selection{
+			ID: selection.ID,
 		}
 	}
 
@@ -135,7 +191,7 @@ func toOrderItems(orderItems []models.OrderItem) []OrderItem {
 
 func (s orderService) getHydratedOrder(orderID uint) (Order, error) {
 	var orderItems []models.OrderItem
-	res := s.db.Debug().Joins("Meal").Joins("User").Where(models.OrderItem{OrderID: orderID}).Find(&orderItems)
+	res := s.db.Joins("Meal").Joins("User").Where(models.OrderItem{OrderID: orderID}).Find(&orderItems)
 	if res.Error != nil {
 		return Order{}, res.Error
 	}
