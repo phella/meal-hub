@@ -53,21 +53,13 @@ func (s orderService) CalculateFullCheck(context.Context) (int64, error) {
 }
 
 func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
-	var order models.Order
-	result := s.db.Where("orders.is_active = ? AND orders.table_id = ?", true, tableId).First(&order)
+	order := models.Order{
+		IsActive: pointers.Ptr(true),
+		TableId:  tableId,
+	}
+	result := s.db.FirstOrCreate(&order)
 	if result.Error != nil {
-		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return models.Order{}, result.Error
-		}
-		newOrder := models.Order{
-			IsActive: pointers.Ptr(true),
-			TableId:  tableId,
-		}
-		res := s.db.Create(&newOrder)
-		if res.Error != nil {
-			return models.Order{}, res.Error
-		}
-		return newOrder, nil
+		return models.Order{}, result.Error
 	}
 
 	return order, nil
@@ -124,8 +116,6 @@ func (s orderService) calculateMealPriceE5(meal Meal, mealsInfo []models.Meal, s
 }
 
 func findMealPriceE5ByID(meals []models.Meal, ID uint) (int64, error) {
-	fmt.Println(meals[0].ID)
-	fmt.Println(ID)
 	for _, meal := range meals {
 		if meal.ID == ID {
 			return meal.PriceE5, nil
@@ -163,30 +153,6 @@ func getSelectionsIDs(meals []Meal) []uint {
 	}
 
 	return selectionIDs
-}
-
-func toModelSelections(selections []Selection) []models.Selection {
-	res := make([]models.Selection, len(selections))
-	for i, selection := range selections {
-		res[i] = models.Selection{
-			ID: selection.ID,
-		}
-	}
-
-	return res
-}
-
-func toOrderItems(orderItems []models.OrderItem) []OrderItem {
-	res := make([]OrderItem, len(orderItems))
-	for i, _ := range orderItems {
-		res[i] = OrderItem{
-			Meal:     orderItems[i].Meal,
-			User:     orderItems[i].User,
-			Quantity: orderItems[i].Quantity,
-		}
-	}
-
-	return res
 }
 
 func (s orderService) getHydratedOrder(orderID uint) (Order, error) {
