@@ -5,6 +5,7 @@ import (
 	"Bete/pkg/pointers"
 	"Bete/services/database"
 	"context"
+	"errors"
 	"fmt"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -53,8 +54,11 @@ func (s orderService) CalculateFullCheck(context.Context) (int64, error) {
 
 func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
 	var order models.Order
-	result := s.db.Where("is_active = ? AND table_id = ?", true, tableId).Preload("OrderItems").First(&order)
-	if result.Error != nil { // check error is not found
+	result := s.db.Where("orders.is_active = ? AND orders.table_id = ?", true, tableId).First(&order)
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return models.Order{}, result.Error
+		}
 		newOrder := models.Order{
 			IsActive: pointers.Ptr(true),
 			TableId:  tableId,
@@ -118,11 +122,11 @@ func toModelDishes(dishes []Dish) []models.Dish {
 
 func toOrderItems(orderItems []models.OrderItem) []OrderItem {
 	res := make([]OrderItem, len(orderItems))
-	for i, orderItem := range orderItems {
+	for i, _ := range orderItems {
 		res[i] = OrderItem{
-			Meal:     orderItem.Meal,
-			User:     orderItem.User,
-			Quantity: orderItem.Quantity,
+			Meal:     orderItems[i].Meal,
+			User:     orderItems[i].User,
+			Quantity: orderItems[i].Quantity,
 		}
 	}
 
@@ -130,14 +134,14 @@ func toOrderItems(orderItems []models.OrderItem) []OrderItem {
 }
 
 func (s orderService) getHydratedOrder(orderID uint) (Order, error) {
-	var order models.Order
-	res := s.db.Preload("OrderItems").First(&order, orderID)
+	var orderItems []models.OrderItem
+	res := s.db.Debug().Joins("Meal").Joins("User").Where(models.OrderItem{OrderID: orderID}).Find(&orderItems)
 	if res.Error != nil {
 		return Order{}, res.Error
 	}
 
 	return Order{
 		Id:         orderID,
-		OrderItems: toOrderItems(order.OrderItems),
+		OrderItems: toOrderItems(orderItems),
 	}, nil
 }
