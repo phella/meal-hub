@@ -1,6 +1,7 @@
 package restaurantService
 
 import (
+	"Bete/models"
 	"Bete/services/database"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -33,10 +34,15 @@ func (s restaurantService) CreateRestaurant(p CreateRestaurantParams) Restaurant
 }
 
 func (s restaurantService) GetRestaurant(int64) Restaurant {
-	var res Restaurant
+	var res models.Restaurant
 	s.db.First(&res, 1)
 
-	return res
+	return Restaurant{
+		Id:       res.Id,
+		Name:     res.Name,
+		LogoPath: res.LogoPath,
+		Slogan:   res.Slogan,
+	}
 }
 
 func (s restaurantService) CreateBranch() {}

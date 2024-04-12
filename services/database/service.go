@@ -20,7 +20,7 @@ func getDBConnectionString() string {
 	db_hostname := os.Getenv("DB_HOSTNAME")
 	db_port := os.Getenv("DB_PORT")
 	db_portocol := os.Getenv("DB_PROTOCOL")
-	return fmt.Sprintf("%s:%s@%s(%s:%s)/%s", db_user, db_password, db_portocol, db_hostname, db_port, db_name)
+	return fmt.Sprintf("%s:%s@%s(%s:%s)/%s?parseTime=true", db_user, db_password, db_portocol, db_hostname, db_port, db_name)
 }
 func New() Service {
 	dbConnectionString := getDBConnectionString()
