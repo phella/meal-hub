@@ -13,7 +13,13 @@ type migrateSchemaParams struct {
 
 func MigrateSchema(params migrateSchemaParams) error {
 	db := params.DbService.GetDBInstance()
-	if err := db.AutoMigrate(&Restaurant{}, &Dish{}); err != nil {
+	if err := db.AutoMigrate(
+		&Restaurant{},
+		&Order{},
+		&OrderItem{},
+		&Dish{},
+		&User{},
+	); err != nil {
 		return err
 	}
 

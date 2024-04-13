@@ -12,10 +12,10 @@ type Service interface {
 }
 
 type Restaurant struct {
-	id       uint
+	Id       uint
 	Name     string
 	LogoPath string
-	slogan   string
+	Slogan   string
 }
 
 type CreateRestaurantParams struct {

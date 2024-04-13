@@ -13,14 +13,17 @@ type databaseService struct {
 }
 
 func getDBConnectionString() string {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic("failed to load dot env")
+	}
 	db_name := os.Getenv("DB_NAME")
 	db_user := os.Getenv("DB_USER")
 	db_password := os.Getenv("DB_PASSWORD")
 	db_hostname := os.Getenv("DB_HOSTNAME")
 	db_port := os.Getenv("DB_PORT")
 	db_portocol := os.Getenv("DB_PROTOCOL")
-	return fmt.Sprintf("%s:%s@%s(%s:%s)/%s", db_user, db_password, db_portocol, db_hostname, db_port, db_name)
+	return fmt.Sprintf("%s:%s@%s(%s:%s)/%s?parseTime=true", db_user, db_password, db_portocol, db_hostname, db_port, db_name)
 }
 func New() Service {
 	dbConnectionString := getDBConnectionString()
