@@ -2,6 +2,8 @@ package main
 
 import (
 	"Bete/models"
+	"Bete/routes/dish"
+	"Bete/services/Dish"
 	orderRouter "Bete/routes/order"
 	restaurantRouter "Bete/routes/restaurant"
 	userRouter "Bete/routes/user"
@@ -21,9 +23,10 @@ func InitializeApp() *fx.App {
 		fx.Provide(router.New),
 		fx.Provide(restaurantService.New),
 		fx.Provide(restaurantRouter.New),
+		fx.Provide(dishService.New),
+		fx.Provide(dishRouter.New),
 		fx.Provide(order.New),
 		fx.Provide(orderRouter.New),
-
 		fx.Provide(userService.New),
 		fx.Provide(userRouter.New),
 		// Invoke initialization methods
