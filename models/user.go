@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	Id   uint `gorm:"primaryKey;autoIncrement"`
-	Name string
+	ID    uint   `gorm:"primaryKey;autoIncrement"`
+	Token string `gorm:"uniqueIndex:,length:14"`
+	Name  string
 }

@@ -63,7 +63,12 @@ func (r orderRouter) addItems(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httputils.JSON(w, ordr)
+	err = httputils.JSON(w, ordr)
+	
+	if err != nil {
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
 }
 
 func (r orderRouter) getFullCheck(w http.ResponseWriter, req *http.Request) {
