@@ -7,6 +7,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/fx"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 type params struct {
@@ -31,8 +33,11 @@ func New(p params) Router {
 
 func (r orderRouter) RegisterRoutes() chi.Router {
 	router := chi.NewRouter()
-	// router.Get("/{id}", r.getRestaurant)
 	router.Post("/items", r.addItems)
+	router.Get("{order-id}/full-check", r.getFullCheck)
+	router.Get("{order-id}/personal-check/{user-id}", r.getPersonalCheck)
+	router.Get("{order-id}/split-check", r.getSplitCheck)
+	router.Get("{order-id}/selected-check", r.getSelectedCheck)
 	return router
 }
 
@@ -59,4 +64,124 @@ func (r orderRouter) addItems(w http.ResponseWriter, req *http.Request) {
 	}
 
 	httputils.JSON(w, ordr)
+}
+
+func (r orderRouter) getFullCheck(w http.ResponseWriter, req *http.Request) {
+	param := chi.URLParam(req, "order-id")
+	orderID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+
+	check, err := r.orderService.CalculateFullCheck(req.Context(), order.CalculateFullCheckParams{
+		OrderID: uint(orderID),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httputils.JSON(w, struct {
+		Check int64 `json:"check"`
+	}{
+		Check: check,
+	})
+}
+
+func (r orderRouter) getPersonalCheck(w http.ResponseWriter, req *http.Request) {
+	param := chi.URLParam(req, "order-id")
+	orderID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+
+	param = chi.URLParam(req, "user-id")
+	userID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+
+	check, err := r.orderService.CalculateUserCheck(req.Context(), order.CalculateUserCheckParams{
+		OrderID: uint(orderID),
+		UserID:  uint(userID),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httputils.JSON(w, struct {
+		Check int64 `json:"check"`
+	}{
+		Check: check,
+	})
+}
+
+func (r orderRouter) getSplitCheck(w http.ResponseWriter, req *http.Request) {
+	param := chi.URLParam(req, "order-id")
+	orderID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+	queryParam := req.URL.Query().Get("split-count")
+	splitCount, err := strconv.ParseInt(queryParam, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+
+	check, err := r.orderService.CalculateEquallyDividedCheck(req.Context(), order.CalculateEquallyDividedCheckParams{
+		OrderID:     uint(orderID),
+		SplitsCount: splitCount,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httputils.JSON(w, struct {
+		Check int64 `json:"check"`
+	}{
+		Check: check,
+	})
+}
+
+func (r orderRouter) getSelectedCheck(w http.ResponseWriter, req *http.Request) {
+	param := chi.URLParam(req, "order-id")
+	orderID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid restaurant id", http.StatusBadRequest)
+		return
+	}
+	queryParam := req.URL.Query().Get("selected-items")
+	jsonString, err := url.QueryUnescape(queryParam)
+	if err != nil {
+		http.Error(w, "failed to decode selected items", http.StatusBadRequest)
+		return
+	}
+
+	var selectedItems []order.SelectedItems
+	if err := json.Unmarshal([]byte(jsonString), &selectedItems); err != nil {
+		http.Error(w, "failed to parse selected items", http.StatusBadRequest)
+		return
+	}
+
+	check, err := r.orderService.CalculateSpecificCheckItems(req.Context(), order.CalculateSpecificCheckItemsParams{
+		OrderID:       uint(orderID),
+		SelectedItems: selectedItems,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httputils.JSON(w, struct {
+		Check int64 `json:"check"`
+	}{
+		Check: check,
+	})
 }

@@ -6,7 +6,6 @@ import (
 	"Bete/services/database"
 	"context"
 	"errors"
-	"fmt"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -44,12 +43,60 @@ func (s orderService) AddItems(ctx context.Context, params AddItemParams) (Order
 	return s.getHydratedOrder(order.ID)
 }
 
-func (s orderService) CalculateUserCheck(context.Context) (int64, error) {
-	return 0, fmt.Errorf("unimplemented")
+func (s orderService) CalculateUserCheck(ctx context.Context, p CalculateUserCheckParams) (int64, error) {
+	var orderItems []models.OrderItem
+	res := s.db.Where(models.OrderItem{UserID: p.UserID, OrderID: p.OrderID}).Where("quantity != paid_quantity").Find(&orderItems)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return calculateCheck(orderItems, true), nil
 }
 
-func (s orderService) CalculateFullCheck(context.Context) (int64, error) {
-	return 0, fmt.Errorf("unimplemented")
+func (s orderService) CalculateFullCheck(ctx context.Context, p CalculateFullCheckParams) (int64, error) {
+	var orderItems []models.OrderItem
+	res := s.db.Where(models.OrderItem{OrderID: p.OrderID}).Where("quantity != paid_quantity").Find(&orderItems)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return calculateCheck(orderItems, true), nil
+}
+
+func (s orderService) CalculateSpecificCheckItems(ctx context.Context, params CalculateSpecificCheckItemsParams) (int64, error) {
+	var orderItems []models.OrderItem
+	res := s.db.Where("ID IN ? AND order_id = ? = ", getOrderItemsIDs(params), params.OrderID).Find(&orderItems)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+
+	if !ValidateCheckItems(orderItems, params) {
+		return 0, errors.New("invalid items selection")
+	}
+
+	return calculateCheck(orderItems, true), nil
+}
+
+func (s orderService) CalculateEquallyDividedCheck(ctx context.Context, p CalculateEquallyDividedCheckParams) (int64, error) {
+	var orderItems []models.OrderItem
+	res := s.db.Where(models.OrderItem{OrderID: p.OrderID}).Find(&orderItems)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+
+	// TODO(Philo): use money package
+	return calculateCheck(orderItems, false) / p.SplitsCount, nil
+}
+
+func calculateCheck(items []models.OrderItem, removePaidItems bool) int64 {
+	check := int64(0)
+	for _, item := range items {
+		quantity := item.Quantity
+		if removePaidItems {
+			quantity -= item.PaidQuantity
+		}
+		check += item.PriceE5 * quantity
+	}
+
+	return check
 }
 
 func (s orderService) ensureOrder(tableId uint) (models.Order, error) {
@@ -153,6 +200,33 @@ func getSelectionsIDs(meals []Meal) []uint {
 	}
 
 	return selectionIDs
+}
+
+func getOrderItemsIDs(p CalculateSpecificCheckItemsParams) []uint {
+	orderItemIds := []uint{}
+	for _, orderItem := range p.SelectedItems {
+		orderItemIds = append(orderItemIds, orderItem.ID)
+	}
+
+	return orderItemIds
+}
+
+func ValidateCheckItems(orderItems []models.OrderItem, params CalculateSpecificCheckItemsParams) bool {
+
+	if len(orderItems) != len(params.SelectedItems) {
+		return false
+	}
+
+	for _, orderItem := range orderItems {
+		for _, selectedOrderItem := range params.SelectedItems {
+			unpaidQuantity := orderItem.Quantity - orderItem.PaidQuantity
+			if orderItem.ID == selectedOrderItem.ID && selectedOrderItem.Quantity > unpaidQuantity {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func (s orderService) getHydratedOrder(orderID uint) (Order, error) {
