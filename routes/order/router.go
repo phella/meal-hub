@@ -4,11 +4,12 @@ import (
 	"Bete/pkg/httputils"
 	"Bete/services/order"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/fx"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/fx"
 )
 
 type params struct {
@@ -34,10 +35,10 @@ func New(p params) Router {
 func (r orderRouter) RegisterRoutes() chi.Router {
 	router := chi.NewRouter()
 	router.Post("/items", r.addItems)
-	router.Get("{order-id}/full-check", r.getFullCheck)
-	router.Get("{order-id}/personal-check/{user-id}", r.getPersonalCheck)
-	router.Get("{order-id}/split-check", r.getSplitCheck)
-	router.Get("{order-id}/selected-check", r.getSelectedCheck)
+	router.Get("/{order-id}/full-check", r.getFullCheck)
+	router.Get("/{order-id}/personal-check/{user-id}", r.getPersonalCheck)
+	router.Get("/{order-id}/split-check", r.getSplitCheck)
+	router.Get("/{order-id}/selected-check", r.getSelectedCheck)
 	return router
 }
 
