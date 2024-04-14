@@ -3,9 +3,12 @@ package restaurantService
 import (
 	"Bete/models"
 	"Bete/services/database"
+	"fmt"
+	"mime/multipart"
+
+	"github.com/skip2/go-qrcode"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"mime/multipart"
 )
 
 type restaurantService struct {
@@ -43,6 +46,17 @@ func (s restaurantService) GetRestaurant(int64) Restaurant {
 		LogoPath: res.LogoPath,
 		Slogan:   res.Slogan,
 	}
+}
+
+func (s restaurantService) UpdateQrCodeMenu(imgLink string, id string) string {
+	outputFile := fmt.Sprintf("assets/qr-codes/%s_%s.png", id, imgLink)
+	fmt.Println(outputFile)
+	err := qrcode.WriteFile(imgLink, qrcode.Medium, 256, outputFile)
+	fmt.Println(err)
+	if err != nil {
+		return "/"
+	}
+	return outputFile
 }
 
 func (s restaurantService) CreateBranch() {}

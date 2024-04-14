@@ -7,6 +7,7 @@ import (
 type Service interface {
 	CreateRestaurant(CreateRestaurantParams) Restaurant
 	GetRestaurant(int64) Restaurant
+	UpdateQrCodeMenu(string, string) string
 	CreateBranch()
 	GetBranches()
 }
