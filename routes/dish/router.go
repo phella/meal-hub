@@ -54,5 +54,8 @@ func (r dishRouter) createDish(w http.ResponseWriter, req *http.Request) {
 		Name: name,
 	})
 
-	httputils.JSON(w, id)
+	if err := httputils.JSON(w, id); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
