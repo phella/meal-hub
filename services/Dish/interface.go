@@ -6,7 +6,7 @@ type Service interface {
 	GetDish(int64) Dish
 }
 type Dish struct {
-	id   uint
+	ID   uint
 	Name string
 }
 

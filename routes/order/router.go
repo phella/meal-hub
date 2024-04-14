@@ -64,11 +64,11 @@ func (r orderRouter) addItems(w http.ResponseWriter, req *http.Request) {
 	}
 
 	err = httputils.JSON(w, ordr)
-	
+
 	if err != nil {
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (r orderRouter) getFullCheck(w http.ResponseWriter, req *http.Request) {
@@ -87,11 +87,14 @@ func (r orderRouter) getFullCheck(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httputils.JSON(w, struct {
+	if err = httputils.JSON(w, struct {
 		Check int64 `json:"check"`
 	}{
 		Check: check,
-	})
+	}); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (r orderRouter) getPersonalCheck(w http.ResponseWriter, req *http.Request) {
@@ -118,11 +121,14 @@ func (r orderRouter) getPersonalCheck(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	httputils.JSON(w, struct {
+	if err = httputils.JSON(w, struct {
 		Check int64 `json:"check"`
 	}{
 		Check: check,
-	})
+	}); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (r orderRouter) getSplitCheck(w http.ResponseWriter, req *http.Request) {
@@ -148,11 +154,14 @@ func (r orderRouter) getSplitCheck(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httputils.JSON(w, struct {
+	if err = httputils.JSON(w, struct {
 		Check int64 `json:"check"`
 	}{
 		Check: check,
-	})
+	}); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (r orderRouter) getSelectedCheck(w http.ResponseWriter, req *http.Request) {
@@ -184,9 +193,12 @@ func (r orderRouter) getSelectedCheck(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	httputils.JSON(w, struct {
+	if err = httputils.JSON(w, struct {
 		Check int64 `json:"check"`
 	}{
 		Check: check,
-	})
+	}); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
