@@ -8,6 +8,7 @@ type Meal struct {
 	Name           string
 	Desc           string
 	ImagePath      string
+	Tag            string
 	PriceE5        int64
 	IsCustomizable bool
 }

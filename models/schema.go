@@ -19,6 +19,7 @@ func MigrateSchema(params migrateSchemaParams) error {
 		&OrderItem{},
 		&Dish{},
 		&User{},
+		&Menu{},
 	); err != nil {
 		return err
 	}
