@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type Table struct {
 	gorm.Model
-	Id    uint `gorm:"primaryKey;autoIncrement"`
-	Order []Order
+	ID       uint `gorm:"primaryKey;autoIncrement"`
+	BranchID uint
+	Order    []Order
 }
