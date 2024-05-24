@@ -8,7 +8,7 @@ type Meal struct {
 	Name           string
 	Desc           string
 	ImagePath      string
-	Tag            string
+	Tag            string // TODO(Philo): create a tag table to support more than 1 tag.
 	PriceE5        int64
 	IsCustomizable bool
 }

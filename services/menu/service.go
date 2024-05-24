@@ -21,7 +21,7 @@ func New(p params) Service {
 	}
 }
 
-func (s menuService) GetMenu(tableID uint) (Menu, error) {
+func (s menuService) GetMenu(tableID string) (Menu, error) {
 	var meals []CombinedMeal
 	s.db.Raw(_getRestaurantMenu, tableID).Scan(&meals)
 	return toMenu(meals)
