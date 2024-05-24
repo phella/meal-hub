@@ -1,10 +1,18 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Table struct {
 	gorm.Model
-	ID       uint `gorm:"primaryKey;autoIncrement"`
+	ID       string `gorm:"primaryKey;"`
 	BranchID uint
 	Order    []Order
+}
+
+func (table *Table) BeforeCreate(tx *gorm.DB) (err error) {
+	table.ID = uuid.NewString()
+	return
 }

@@ -3,11 +3,13 @@ package main
 import (
 	"Bete/models"
 	"Bete/routes/dish"
-	"Bete/services/Dish"
+	menuRouter "Bete/routes/menu"
 	orderRouter "Bete/routes/order"
 	restaurantRouter "Bete/routes/restaurant"
 	userRouter "Bete/routes/user"
+	"Bete/services/Dish"
 	"Bete/services/database"
+	"Bete/services/menu"
 	"Bete/services/order"
 	restaurantService "Bete/services/restaurant"
 	"Bete/services/router"
@@ -23,14 +25,23 @@ func InitializeApp() *fx.App {
 		fx.Provide(router.New),
 		fx.Provide(restaurantService.New),
 		fx.Provide(restaurantRouter.New),
+		fx.Provide(menu.New),
+		fx.Provide(menuRouter.New),
 		fx.Provide(dishService.New),
 		fx.Provide(dishRouter.New),
 		fx.Provide(order.New),
 		fx.Provide(orderRouter.New),
 		fx.Provide(userService.New),
 		fx.Provide(userRouter.New),
+
 		// Invoke initialization methods
 		fx.Invoke(models.MigrateSchema),
+		fx.Invoke(mockDataGenerator),
 		fx.Invoke(router.Service.ListenAndServe),
 	)
+}
+
+func mockDataGenerator() {
+	db := database.New()
+	db.GetDBInstance()
 }

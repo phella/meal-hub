@@ -4,7 +4,7 @@ import "Bete/models"
 
 type Service interface {
 	// CreateMeal() Meal
-	GetMenu(tableID uint) (Menu, error)
+	GetMenu(tableID string) (Menu, error)
 }
 
 type Meal struct {

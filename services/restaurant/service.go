@@ -38,7 +38,7 @@ func (s restaurantService) GetRestaurant(int64) Restaurant {
 	s.db.First(&res, 1)
 
 	return Restaurant{
-		Id:       res.Id,
+		Id:       res.ID,
 		Name:     res.Name,
 		LogoPath: res.LogoPath,
 		Slogan:   res.Slogan,

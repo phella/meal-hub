@@ -2,6 +2,7 @@ package router
 
 import (
 	"Bete/routes/dish"
+	menuRouter "Bete/routes/menu"
 	orderRouter "Bete/routes/order"
 	restaurantRouter "Bete/routes/restaurant"
 	userRouter "Bete/routes/user"
@@ -20,6 +21,7 @@ type routerService struct {
 	dishRouter       dishRouter.Router
 	orderRouter      orderRouter.Router
 	userRouter       userRouter.Router
+	menuRouter       menuRouter.Router
 	userService      userService.Service
 }
 
@@ -29,6 +31,7 @@ type params struct {
 	DishRouter       dishRouter.Router
 	OrderRouter      orderRouter.Router
 	UserRouter       userRouter.Router
+	MenuRouter       menuRouter.Router
 	UserService      userService.Service
 }
 
@@ -38,6 +41,7 @@ func New(p params) Service {
 		dishRouter:       p.DishRouter,
 		orderRouter:      p.OrderRouter,
 		userRouter:       p.UserRouter,
+		menuRouter:       p.MenuRouter,
 		userService:      p.UserService,
 	}
 }
@@ -68,6 +72,9 @@ func (s routerService) registerRoutes() chi.Router {
 
 	userRoutes := s.userRouter.RegisterRoutes()
 	mainRouter.Mount("/api/v1/user", userRoutes)
+
+	menuRoutes := s.menuRouter.RegisterRoutes()
+	mainRouter.Mount("/api/v1/menu", menuRoutes)
 
 	return mainRouter
 }
