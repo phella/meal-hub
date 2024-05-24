@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/fx v1.21.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
