@@ -10,6 +10,7 @@ import (
 	"Bete/services/Dish"
 	"Bete/services/database"
 	"Bete/services/menu"
+	mockDataGenerator "Bete/services/mock_data_generator"
 	"Bete/services/order"
 	restaurantService "Bete/services/restaurant"
 	"Bete/services/router"
@@ -36,12 +37,7 @@ func InitializeApp() *fx.App {
 
 		// Invoke initialization methods
 		fx.Invoke(models.MigrateSchema),
-		fx.Invoke(mockDataGenerator),
+		fx.Invoke(mockDataGenerator.GenerateData),
 		fx.Invoke(router.Service.ListenAndServe),
 	)
-}
-
-func mockDataGenerator() {
-	db := database.New()
-	db.GetDBInstance()
 }
